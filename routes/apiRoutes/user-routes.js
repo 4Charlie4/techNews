@@ -3,7 +3,10 @@ const { User } = require("../../models");
 
 router.get("/", (req, res) => {
   //access User model and runs .findAll() method(equivalent to SELECT * FROM users) which comes from the Model class via Sequelize
-  User.findAll()
+  User.findAll({
+    //excludes password column to hide passwords. in an array incase more needs to be added.
+    attributes: { exclude: ["password"] },
+  })
     .then((dbUserData) => res.json(dbUserData))
     .catch((err) => {
       console.log(err);
@@ -14,10 +17,12 @@ router.get("/", (req, res) => {
 router.get("/:id", (req, res) => {
   //findOne utilizes params to find specific data based on parameters in this case being the id(similar to SELECT * FROM users WHERE id=1)
   User.findOne({
+    attributes: { exclude: ["password"] },
     where: {
       id: req.params.id,
     },
   })
+    //any data received from .findAll() passed through here
     .then((dbUserData) => {
       if (!dbUserData) {
         res.status(404).json({ message: "No user found with this id" });
