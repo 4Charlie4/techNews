@@ -50,6 +50,27 @@ router.post("/", (req, res) => {
     });
 });
 
+//POST carries req.body while GET carries request parameter in the URL string lik id:1. POST is better for login information
+router.post("/login", (req, res) => {
+  User.findOne({
+    where: {
+      email: req.body.email,
+    },
+  }).then((dbUserData) => {
+    if (!dbUserData) {
+      res.status(400).json({ message: "The email you entered was not found" });
+      return;
+    }
+    //res.json({ user: dbUserData });
+    const validPassword = dbUserData.checkPassword(req.body.password);
+    if (!validPassword) {
+      res.status(400).json({ message: "Invalid Password" });
+      return;
+    }
+    res.json({ user: dbUserData, message: "You are now logged in!" });
+  });
+});
+
 router.put("/:id", (req, res) => {
   //this expects req.body to already match key/value pairs for username, password, and email
 

@@ -3,7 +3,12 @@ const sequelize = require("../config/connection");
 const bcrypt = require("bcrypt");
 
 //User class inherits from model which comes from sequelize package
-class User extends Model {}
+class User extends Model {
+  //runs on each instance of User
+  checkPassword(loginPw) {
+    return bcrypt.compareSync(loginPw, this.password);
+  }
+}
 
 //Define table columns and config
 User.init(
