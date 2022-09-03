@@ -1,5 +1,6 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/connection");
+const bcrypt = require("bcrypt");
 
 //User class inherits from model which comes from sequelize package
 class User extends Model {}
@@ -51,7 +52,24 @@ User.init(
       },
     },
   },
+
   {
+    hooks: {
+      //for when a pass is created
+      async beforeCreate(newUserData) {
+        newUserData.password = await bcrypt.hash(newUserData.password, 10);
+        return newUserData;
+      },
+      //for when a pass is updated
+      async beforeUpdate(updateUserData) {
+        updateUserData.password = await bcrypt.hash(
+          updateUserData.password,
+          10
+        );
+        return updateUserData;
+      },
+    },
+
     //Table configuration options
 
     //passing in imported sequelize connection from connection.js
