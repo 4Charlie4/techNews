@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { User } = require("../../models");
+const { User, Vote, Post } = require("../../models");
 
 router.get("/", (req, res) => {
   //access User model and runs .findAll() method(equivalent to SELECT * FROM users) which comes from the Model class via Sequelize
@@ -21,6 +21,18 @@ router.get("/:id", (req, res) => {
     where: {
       id: req.params.id,
     },
+    include: [
+      {
+        model: Post,
+        attributes: ["id", "title", "post_url", "created_at"],
+      },
+      {
+        model: Post,
+        attributes: ["title"],
+        through: Vote,
+        as: "voted_posts",
+      },
+    ],
   })
     //any data received from .findAll() passed through here
     .then((dbUserData) => {
