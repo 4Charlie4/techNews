@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { User, Vote, Post } = require("../../models");
+const { User, Vote, Post, Comment } = require("../../models");
 
 router.get("/", (req, res) => {
   //access User model and runs .findAll() method(equivalent to SELECT * FROM users) which comes from the Model class via Sequelize
@@ -26,6 +26,15 @@ router.get("/:id", (req, res) => {
         model: Post,
         attributes: ["id", "title", "post_url", "created_at"],
       },
+      {
+        model: Comment,
+        attributes: ["id", "comment_text", "created_at"],
+        include: {
+          model: Post,
+          attributes: ["title"],
+        },
+      },
+
       {
         model: Post,
         attributes: ["title"],
