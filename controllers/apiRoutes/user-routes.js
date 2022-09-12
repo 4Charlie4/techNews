@@ -63,12 +63,18 @@ router.post("/", (req, res) => {
     username: req.body.username,
     email: req.body.email,
     password: req.body.password,
-  })
-    .then((dbUserData) => res.json(dbUserData))
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json(err);
+    //gives server access to user id and name it also checks whether the user is logged in our not.
+  }).then((dbUserData) => {
+    //initiates session
+    req.session.save(() => {
+      //declares session variables
+      req.session.user_id = dbUserData.id;
+      req.session.username = dbUserData.username;
+      req.session.loggedIn = true;
+
+      res.json(dbUserData);
     });
+  });
 });
 
 //POST carries req.body while GET carries request parameter in the URL string lik id:1. POST is better for login information
@@ -88,8 +94,24 @@ router.post("/login", (req, res) => {
       res.status(400).json({ message: "Invalid Password" });
       return;
     }
-    res.json({ user: dbUserData, message: "You are now logged in!" });
+    req.session.save(() => {
+      req.session.user_id = dbUserData.id;
+      req.session.username = dbUserData.username;
+      req.session.loggedIn = true;
+
+      res.json({ user: dbUserData, message: "You are now logged in!" });
+    });
   });
+});
+
+router.post("/logout", (req, res) => {
+  if (req.session.loggedIn) {
+    req.session.destroy(() => {
+      res.status(204).end();
+    });
+  } else {
+    res.status(404).end();
+  }
 });
 
 router.put("/:id", (req, res) => {
